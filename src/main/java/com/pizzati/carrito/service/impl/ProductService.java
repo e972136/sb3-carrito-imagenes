@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pizzati.carrito.entity.Category;
 import com.pizzati.carrito.entity.Product;
-import com.pizzati.carrito.exception.ProductNotFoundException;
+import com.pizzati.carrito.exception.ResourceNotFound;
 import com.pizzati.carrito.repository.CategoryRepository;
 import com.pizzati.carrito.repository.ProductRepository;
 import com.pizzati.carrito.request.AddProductRequest;
@@ -14,7 +14,6 @@ import com.pizzati.carrito.service.IProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
@@ -82,13 +81,13 @@ public class ProductService implements IProductService {
 
     @Override
     public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("Product not found"));
+        return productRepository.findById(id).orElseThrow(()->new ResourceNotFound("Product not found"));
     }
 
     @Override
     public void deleteProductById(Long id) {
         productRepository.findById(id)
-                .ifPresentOrElse(productRepository::delete,()->{throw new ProductNotFoundException("Product not found");});
+                .ifPresentOrElse(productRepository::delete,()->{throw new ResourceNotFound("Product not found");});
     }
 
     @Override
@@ -96,7 +95,7 @@ public class ProductService implements IProductService {
         return productRepository.findById(productId)
                 .map(productoOriginal->productToUpdate(productoOriginal,request))
                 .map(productRepository::save)
-                .orElseThrow(()->new ProductNotFoundException("No Esta el producto"));
+                .orElseThrow(()->new ResourceNotFound("No Esta el producto"));
     }
 
     private Product productToUpdate(Product productOriginal, ProductUpdateRequest request){

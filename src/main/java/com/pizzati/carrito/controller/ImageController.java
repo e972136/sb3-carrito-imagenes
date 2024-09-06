@@ -14,6 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.sql.SQLException;
 import java.util.List;
 
+import static java.util.Objects.isNull;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @RestController
 @RequestMapping("${api.prefix}/images")
 public class ImageController {
@@ -46,5 +49,31 @@ public class ImageController {
                 .contentType(MediaType.parseMediaType(image.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,"attachement; filename=\""+image.getFileName()+"\"")
                 .body(resource);
+    }
+
+    @PutMapping(value="/image/{imageId}/update",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> updateImage(
+            @RequestBody MultipartFile file,
+            @PathVariable Long imageId
+    ){
+        try {
+            Image image = imageService.getImageById(imageId);
+            imageService.updateImage(file,imageId);
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.status(NOT_FOUND).body("Not Found");
+        }
+    }
+
+    @DeleteMapping("/image/{imageId}/delete")
+    public ResponseEntity<String> deleteImage(
+            @PathVariable Long imageId
+    ){
+        try {
+            imageService.deleteImageById(imageId);
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.status(NOT_FOUND).body("Not Found");
+        }
     }
 }
