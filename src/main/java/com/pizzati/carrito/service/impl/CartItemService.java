@@ -6,12 +6,14 @@ import com.pizzati.carrito.entity.Product;
 import com.pizzati.carrito.exception.ResourceNotFound;
 import com.pizzati.carrito.repository.CartItemRepository;
 import com.pizzati.carrito.repository.CartRepository;
+import com.pizzati.carrito.response.CartResponse;
 import com.pizzati.carrito.service.ICartItemService;
 import com.pizzati.carrito.service.ICartService;
 import com.pizzati.carrito.service.IProductService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 
 import static java.util.Objects.isNull;
 
@@ -32,8 +34,15 @@ public class CartItemService implements ICartItemService {
     }
 
     @Override
-    public void addCartItem(Long cartId, Long productId, int quantity) {
-        Cart cart = cartService.getCart(cartId);
+    public CartResponse addCartItem(Long cartId, Long productId, int quantity) {
+        Cart cart;
+        if(isNull(cartId)){
+            cart = new Cart();
+            cart.setCartItems(new HashSet<>());
+        }else{
+            cart = cartService.getCart(cartId);
+        }
+
         Product product = productService.getProductById(productId);
         CartItem cartItem = cart.getCartItems().stream()
                 .parallel()
@@ -47,7 +56,8 @@ public class CartItemService implements ICartItemService {
         cartItem.setTotalPrice();
         cart.addItem(cartItem);
         cartItemRepository.save(cartItem);
-        cartRepository.save(cart);
+        cart = cartRepository.save(cart);
+        return new CartResponse(cart.getId(),cart.getTotalAmount());
     }
 
     @Override

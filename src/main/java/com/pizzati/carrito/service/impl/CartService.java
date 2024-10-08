@@ -6,6 +6,7 @@ import com.pizzati.carrito.repository.CartItemRepository;
 import com.pizzati.carrito.repository.CartRepository;
 import com.pizzati.carrito.service.ICartService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -32,6 +33,7 @@ public class CartService implements ICartService {
     }
 
     @Override
+    @Transactional
     public void clearCart(Long id) {
         Cart cart = cartRepository
                 .findById(id)
